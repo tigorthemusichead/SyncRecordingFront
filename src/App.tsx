@@ -1,26 +1,73 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react';
 import './App.css';
+import {useAudioRecorder} from "react-audio-voice-recorder";
+import uploadFile from "./functions/upload";
+import useWebSocket from "./hooks/useWebSocket";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const {
+        startRecording,
+        stopRecording,
+        recordingBlob,
+        isRecording,
+        // recordingTime
+    } = useAudioRecorder()
+
+    useEffect(() => {
+        if(recordingBlob != null) {
+            uploadFile(recordingBlob)
+        }
+    }, [recordingBlob])
+
+    useWebSocket({
+        action: 'set-time',
+        callback: (data) => {
+            console.log(new Date(data.value.time).getTime() - new Date().getTime())
+            setTimeout(() => {
+                startRecording()
+            }, new Date(data.value.time).getTime() - new Date().getTime())
+        }
+    })
+
+    const [startTime, setStartTime] = useState<Date>(new Date())
+
+    return (
+        <div className="App">
+            {
+                isRecording
+                    ? <button
+                        onClick={stopRecording}
+                    >
+                        STOP
+                    </button>
+                    : <button
+                        onClick={startRecording}
+                    >
+                        START
+                    </button>
+            }
+            <br/>
+            <input type="time" onChange={(e) => {
+                setStartTime(new Date(new Date().toDateString() + ' ' + e.target.value))
+            }}/>
+            <br/>
+            <button onClick={() => {
+                // setTimeout(startRecording, startTime.getTime() - new Date().getTime())
+                fetch('http://localhost:5000/setTime', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                        time: startTime
+                    })
+                })
+            }}>
+                SET TIMER
+            </button>
+        </div>
+    );
 }
 
 export default App;
