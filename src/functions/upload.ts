@@ -4,7 +4,7 @@ const uploadFile = async (recordingBlob: Blob) => {
     })
     const formData = new FormData()
     formData.append('file', file)
-    fetch('http://localhost:5000/uploadFile', {
+    fetch(`${process.env.REACT_APP_API_URL}/uploadFile`, {
         method: 'POST',
         body: formData,
     })

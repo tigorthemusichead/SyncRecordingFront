@@ -53,7 +53,7 @@ function App() {
             <br/>
             <button onClick={() => {
                 // setTimeout(startRecording, startTime.getTime() - new Date().getTime())
-                fetch('http://localhost:5000/setTime', {
+                fetch(`${process.env.REACT_APP_API_URL}/setTime`, {
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'

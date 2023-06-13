@@ -7,7 +7,7 @@ interface useWebSocketProps {
 
 const useWebSocket = ({ action, callback }: useWebSocketProps): void => {
     useEffect(() => {
-        const websocket = new WebSocket('ws://localhost:1337')
+        const websocket = new WebSocket(process.env.REACT_APP_WS_URL ?? 'ws://localhost:1337')
 
         websocket.onopen = () => {
             console.log('connected')
